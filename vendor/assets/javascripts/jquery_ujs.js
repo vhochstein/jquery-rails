@@ -49,7 +49,7 @@
 
   $.rails = rails = {
     // Link elements bound by jquery-ujs
-    linkClickSelector: 'a[data-confirm], a[data-method], a[data-remote]',
+    linkClickSelector: 'a[data-confirm], input[data-confirm], a[data-method], a[data-remote], input[data-remote]',
 
     // Form elements bound by jquery-ujs
     formSubmitSelector: 'form',
@@ -95,13 +95,13 @@
     // Submits "remote" forms and links with ajax
     handleRemote: function(element) {
       var method, url, data,
-        dataType = element.data('type') || ($.ajaxSettings && $.ajaxSettings.dataType);
+        dataType = event.data_type || element.data('type') || ($.ajaxSettings && $.ajaxSettings.dataType);
 
       if (rails.fire(element, 'ajax:before')) {
 
         if (element.is('form')) {
-          method = element.attr('method');
-          url = element.attr('action');
+          method = event.data_method || element.attr('method') || element.attr('data-method');
+          url = event.data_url || element.attr('action');
           data = element.serializeArray();
           // memoized value from clicked submit button
           var button = element.data('ujs:submit-button');
