@@ -79,7 +79,7 @@
     fire: function(obj, name, data) {
       var event = $.Event(name);
       obj.trigger(event, data);
-      return event.result !== false;
+      return event;
     },
 
     // Default confirm dialog, may be overridden with custom confirm dialog in $.rails.confirm
@@ -94,11 +94,11 @@
 
     // Submits "remote" forms and links with ajax
     handleRemote: function(element) {
-      var method, url, data,
-        dataType = event.data_type || element.data('type') || ($.ajaxSettings && $.ajaxSettings.dataType);
-
-      if (rails.fire(element, 'ajax:before')) {
-
+      var method, url, data, dataType;
+        
+      var event = rails.fire(element, 'ajax:before'); 
+      if (event.result !== false) {
+        dataType = event.data_type || element.data('type') || ($.ajaxSettings && $.ajaxSettings.dataType); 
         if (element.is('form')) {
           method = event.data_method || element.attr('method') || element.attr('data-method');
           url = event.data_url || element.attr('action');
@@ -122,7 +122,7 @@
             if (settings.dataType === undefined) {
               xhr.setRequestHeader('accept', '*/*;q=0.5, ' + settings.accepts.script);
             }
-            return rails.fire(element, 'ajax:beforeSend', [xhr, settings]);
+            return rails.fire(element, 'ajax:beforeSend', [xhr, settings]).result !== false;
           },
           success: function(data, status, xhr) {
             element.trigger('ajax:success', [data, status, xhr]);
@@ -196,9 +196,9 @@
           answer = false, callback;
       if (!message) { return true; }
 
-      if (rails.fire(element, 'confirm')) {
+      if (rails.fire(element, 'confirm').result !== false) {
         answer = rails.confirm(message);
-        callback = rails.fire(element, 'confirm:complete', [answer]);
+        callback = rails.fire(element, 'confirm:complete', [answer]).result !== false;
       }
       return answer && callback;
     },
@@ -271,13 +271,13 @@
     if (!rails.allowAction(form)) return rails.stopEverything(e);
 
     // skip other logic when required values are missing or file upload is present
-    if (blankRequiredInputs && rails.fire(form, 'ajax:aborted:required', [blankRequiredInputs])) {
+    if (blankRequiredInputs && rails.fire(form, 'ajax:aborted:required', [blankRequiredInputs]).result !== false) {
       return rails.stopEverything(e);
     }
 
     if (remote) {
       if (nonBlankFileInputs) {
-        return rails.fire(form, 'ajax:aborted:file', [nonBlankFileInputs]);
+        return rails.fire(form, 'ajax:aborted:file', [nonBlankFileInputs]).result !== false;
       }
 
       // If browser does not support submit bubbling, then this live-binding will be called before direct
