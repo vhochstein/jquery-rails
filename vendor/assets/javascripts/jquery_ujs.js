@@ -99,8 +99,8 @@
       var event = rails.fire(element, 'ajax:before'); 
       if (event.result !== false) {
         dataType = event.data_type || element.data('type') || ($.ajaxSettings && $.ajaxSettings.dataType); 
+        method  = event.data_method || element.attr('method') || element.attr('data-method') || 'GET'
         if (element.is('form')) {
-          method = event.data_method || element.attr('method') || element.attr('data-method');
           url = event.data_url || element.attr('action');
           data = element.serializeArray();
           // memoized value from clicked submit button
@@ -110,8 +110,7 @@
             element.data('ujs:submit-button', null);
           }
         } else {
-          method = element.data('method');
-          url = element.attr('href');
+          url = event.data_url || element.attr('href');
           data = element.data('params') || null; 
        }
 
